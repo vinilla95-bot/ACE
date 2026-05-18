@@ -21,6 +21,16 @@ import type { SelectedRow, SupabaseOptionRow } from "./types";
 import "./index.css";
 import InventoryPage from "./pages/InventoryPage";
 
+const DEFAULT_PAYMENT_TERMS = "계약금 50%입금 후 도면제작 및 확인/착수, 선 완불 후 출고";
+const DEFAULT_NOTICES = `*견적서는 견적일로 부터 2주간 유효합니다.
+1. 하차비 별도(당 지역 지게차 혹은 크레인 이용)
+2. '주문 제작'시 50퍼센트 입금 후 제작, 완불 후 출고. /임대의 경우 계약금 없이 완불 후 출고
+*출고 전날 오후 2시 이전 잔금 결제 조건*
+3. 하차, 회수시 상차 별도(당 지역 지게차 혹은 크레인 이용)`;
+const DEFAULT_IMPORTANT = `1. 인적사항 요구 현장시 운임비 3만원 추가금 발생합니다.
+2. 기본 전기는 설치 되어 있으나 주택용도 전선관은 추가되어 있지 않습니다.
+한전/전기안전공사 측에서 전기연결 예정이신 경우 전선관 옵션을 추가하여 주시길 바랍니다.
+해당사항은 고지의무사항이 아니므로 상담을 통해 확인하시길 바랍니다.`;
 
 // ✅ 초성 검색 유틸리티
 const CHOSUNG_LIST = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
@@ -3111,36 +3121,43 @@ onKeyDown={(e) => {
                 <td className="sumNum right">{fmt(vat_amount)}</td>
                 <td className="sumNum right"></td>
               </tr>
-              <tr>
+            <tr>
   <th className="label">결제조건</th>
-  <td className="text" colSpan={7} contentEditable={editable} suppressContentEditableWarning tabIndex={-1}>
-    계약금 50%입금 후 도면제작 및 확인/착수, 선 완불 후 출고
+  <td className="text" colSpan={7}>
+    {editable ? (
+      <textarea
+        value={(form as any).paymentTerms ?? DEFAULT_PAYMENT_TERMS}
+        onChange={(e) => setForm && setForm((p: any) => ({ ...p, paymentTerms: e.target.value }))}
+        style={{ width: '100%', border: 'none', background: 'transparent', resize: 'none', fontFamily: 'inherit', fontSize: 12, lineHeight: 1.55, outline: 'none', minHeight: 22 }}
+        rows={1}
+      />
+    ) : ((form as any).paymentTerms ?? DEFAULT_PAYMENT_TERMS)}
   </td>
 </tr>
-             <tr>
+<tr>
   <th className="label">주의사항</th>
-  <td className="text" colSpan={7} contentEditable={editable} suppressContentEditableWarning tabIndex={-1}>
-    *견적서는 견적일로 부터 2주간 유효합니다.
-    <br />
-    1. 하차비 별도(당 지역 지게차 혹은 크레인 이용)
-    <br />
-    2. '주문 제작'시 50퍼센트 입금 후 제작, 완불 후 출고. /임대의 경우 계약금 없이 완불 후 출고
-    <br />
-    *출고 전날 오후 2시 이전 잔금 결제 조건*
-    <br />
-    3. 하차, 회수시 상차 별도(당 지역 지게차 혹은 크레인 이용)
+  <td className="text" colSpan={7} style={{ whiteSpace: 'pre-wrap' }}>
+    {editable ? (
+      <textarea
+        value={(form as any).notices ?? DEFAULT_NOTICES}
+        onChange={(e) => setForm && setForm((p: any) => ({ ...p, notices: e.target.value }))}
+        style={{ width: '100%', border: 'none', background: 'transparent', resize: 'none', fontFamily: 'inherit', fontSize: 12, lineHeight: 1.55, outline: 'none', minHeight: 90 }}
+        rows={5}
+      />
+    ) : ((form as any).notices ?? DEFAULT_NOTICES)}
   </td>
 </tr>
 <tr>
   <th className="label">중요사항</th>
-  <td className="text" colSpan={7} contentEditable={editable} suppressContentEditableWarning tabIndex={-1}>
-    1. 인적사항 요구 현장시 운임비 3만원 추가금 발생합니다.
-    <br />
-    2. 기본 전기는 설치 되어 있으나 주택용도 전선관은 추가되어 있지 않습니다.
-    <br />
-    한전/전기안전공사 측에서 전기연결 예정이신 경우 전선관 옵션을 추가하여 주시길 바랍니다.
-    <br />
-    해당사항은 고지의무사항이 아니므로 상담을 통해 확인하시길 바랍니다.
+  <td className="text" colSpan={7} style={{ whiteSpace: 'pre-wrap' }}>
+    {editable ? (
+      <textarea
+        value={(form as any).importantNotes ?? DEFAULT_IMPORTANT}
+        onChange={(e) => setForm && setForm((p: any) => ({ ...p, importantNotes: e.target.value }))}
+        style={{ width: '100%', border: 'none', background: 'transparent', resize: 'none', fontFamily: 'inherit', fontSize: 12, lineHeight: 1.55, outline: 'none', minHeight: 75 }}
+        rows={4}
+      />
+    ) : ((form as any).importantNotes ?? DEFAULT_IMPORTANT)}
   </td>
 </tr>
             </tbody>
