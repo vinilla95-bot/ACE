@@ -490,8 +490,7 @@ const [multiSendStatus, setMultiSendStatus] = useState("");
     vatIncluded: current?.vat_included !== false,
     defaultW: current?.w || 3,
     defaultL: current?.l || 6,
-    defaultW: current?.w || 3,
-  defaultL: current?.l || 6,
+  
   paymentTerms: editForm?.paymentTerms,
   notices: editForm?.notices,
   importantNotes: editForm?.importantNotes,
@@ -887,18 +886,18 @@ let customerUnitPrice = (rent && !isAircon)
       const supply = itemsToSave.reduce((acc: number, it: any) => acc + Number(it.amount || 0), 0);
       const vat = Math.round(supply * 0.1);
       const total = supply + vat;
-
-    const rentalMeta = {
-  rentalForm,
-  rentalConditions,
-  statementDate,
-  paidAmount,
-  statementCustomer: { ... },
-  paymentTerms: editForm?.paymentTerms,
-  notices: editForm?.notices,
-  importantNotes: editForm?.importantNotes,
-
+const rentalMeta = {
+        rentalForm,
+        rentalConditions,
+        statementDate,
+        paidAmount,
+        statementCustomer: {
+          customer_reg_no: editForm?.customer_reg_no || "",
+          customer_addr: editForm?.customer_addr || "",
         },
+        paymentTerms: editForm?.paymentTerms,
+        notices: editForm?.notices,
+        importantNotes: editForm?.importantNotes,
       };
       const memoJson = JSON.stringify(rentalMeta);
 
