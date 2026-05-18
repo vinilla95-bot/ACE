@@ -490,6 +490,11 @@ const [multiSendStatus, setMultiSendStatus] = useState("");
     vatIncluded: current?.vat_included !== false,
     defaultW: current?.w || 3,
     defaultL: current?.l || 6,
+    defaultW: current?.w || 3,
+  defaultL: current?.l || 6,
+  paymentTerms: editForm?.paymentTerms,
+  notices: editForm?.notices,
+  importantNotes: editForm?.importantNotes,
   }), [current, editForm]);
 
   const setQuoteForm = useCallback((fn: any) => {
@@ -501,6 +506,9 @@ const [multiSendStatus, setMultiSendStatus] = useState("");
       customer_phone: newForm.phone,
       site_name: newForm.sitePickedLabel || newForm.siteQ,
       quoteDate: newForm.quoteDate,
+ paymentTerms: newForm.paymentTerms,
+  notices: newForm.notices,
+  importantNotes: newForm.importantNotes,
     }));
     if (newForm.vatIncluded !== quoteForm.vatIncluded && current) {
       supabase.from("quotes").update({ vat_included: newForm.vatIncluded }).eq("quote_id", current.quote_id);
@@ -880,14 +888,16 @@ let customerUnitPrice = (rent && !isAircon)
       const vat = Math.round(supply * 0.1);
       const total = supply + vat;
 
-      const rentalMeta = {
-        rentalForm,
-        rentalConditions,
-        statementDate,
-        paidAmount,
-        statementCustomer: {
-          customer_reg_no: editForm?.customer_reg_no || "",
-          customer_addr: editForm?.customer_addr || "",
+    const rentalMeta = {
+  rentalForm,
+  rentalConditions,
+  statementDate,
+  paidAmount,
+  statementCustomer: { ... },
+  paymentTerms: editForm?.paymentTerms,
+  notices: editForm?.notices,
+  importantNotes: editForm?.importantNotes,
+
         },
       };
       const memoJson = JSON.stringify(rentalMeta);
@@ -1515,6 +1525,11 @@ if (result.ok === false) throw new Error(result.message || "전송 실패");
           else setRentalConditions(DEFAULT_RENTAL_CONDITIONS);
           setPaidAmount(typeof meta?.paidAmount === 'number' ? meta.paidAmount : 0);
           setStatementDate(meta?.statementDate || new Date().toISOString().slice(0, 10));
+          
+    if (meta?.paymentTerms !== undefined) setEditForm((prev: any) => ({ ...prev, paymentTerms: meta.paymentTerms }));
+    if (meta?.notices !== undefined) setEditForm((prev: any) => ({ ...prev, notices: meta.notices }));
+    if (meta?.importantNotes !== undefined) setEditForm((prev: any) => ({ ...prev, importantNotes: meta.importantNotes }));
+
         } catch (e) {
           setPaidAmount(0);
           setStatementDate(new Date().toISOString().slice(0, 10));
