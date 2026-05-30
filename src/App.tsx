@@ -2732,21 +2732,9 @@ function A4Quote({ form, setForm, computedItems, blankRows, fmt, supply_amount, 
               <col style={{ width: "19%" }} />
             </colgroup>
             <tbody>
-              <tr>
-                <th className="k center">담당자</th>
-                <td className="v" colSpan={3}>
-                  {editable && bizcards && setSelectedBizcardId ? (
-                    <select 
-                      value={selectedBizcardId || ""} 
-                      onChange={(e) => setSelectedBizcardId(e.target.value)}
-                      style={{ border: "none", background: "transparent", fontSize: 13, width: "100%", cursor: "pointer" }}
-                    >
-                      {bizcards.map((b) => (<option key={b.id} value={b.id}>{b.name}</option>))}
-                    </select>
-                  ) : (bizcardName || "")}
-                </td>
+               <tr>
                 <th className="k center">견적일자</th>
-                <td className="v">
+                <td className="v" colSpan={5}>
                   {editable && setForm ? (
                     <input 
                       type="date" 
@@ -2757,7 +2745,6 @@ function A4Quote({ form, setForm, computedItems, blankRows, fmt, supply_amount, 
                   ) : ymd}
                 </td>
               </tr>
-              <tr>
                 <th className="k center">고객명</th>
                 <td className="v" colSpan={3}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -2829,6 +2816,20 @@ function A4Quote({ form, setForm, computedItems, blankRows, fmt, supply_amount, 
                 </td>
                 <th className="k center">주소</th>
                 <td className="v">경기도 화성시<br />향남읍 구문천안길16</td>
+              </tr>
+             <tr>
+                <th className="k center">담당자</th>
+                <td className="v" colSpan={5}>
+                  {editable && bizcards && setSelectedBizcardId ? (
+                    <select 
+                      value={selectedBizcardId || ""} 
+                      onChange={(e) => setSelectedBizcardId(e.target.value)}
+                      style={{ border: "none", background: "transparent", fontSize: 13, width: "100%", cursor: "pointer" }}
+                    >
+                      {bizcards.map((b) => (<option key={b.id} value={b.id}>{b.name}</option>))}
+                    </select>
+                  ) : (bizcardName || "")}
+                </td>
               </tr>
               <tr>
                 <td className="msg" colSpan={4}>
