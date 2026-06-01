@@ -1823,108 +1823,109 @@ const clonedSheet = originalSheet.cloneNode(true) as HTMLElement;
     }
   };
 
-  const downloadJpg = async () => {
+ const getQuoteFileName = () => {
+    const site = String(form.sitePickedLabel || form.siteQ || "").trim();
+    return `${site ? site + " " : ""}귀하 견적서`;
+  };
+
+  const captureQuoteCanvas = async (): Promise<HTMLCanvasElement> => {
     const originalSheet = document.querySelector("#quotePreviewApp .a4Sheet") as HTMLElement;
-    if (!originalSheet) {
-      alert("캡처 대상을 찾을 수 없습니다.");
-      return;
-    }
+    if (!originalSheet) throw new Error("캡처 대상을 찾을 수 없습니다.");
 
-    setStatusMsg("JPG 생성 중...");
+    const captureContainer = document.createElement('div');
+    captureContainer.id = 'captureContainer';
+    captureContainer.style.cssText = 'position: fixed; top: -9999px; left: -9999px; width: 800px; background: #fff; z-index: -1;';
+    document.body.appendChild(captureContainer);
 
+    const styleTag = document.querySelector('#quotePreviewApp style');
+    if (styleTag) captureContainer.appendChild(styleTag.cloneNode(true));
+
+    const clonedSheet = originalSheet.cloneNode(true) as HTMLElement;
+    clonedSheet.style.cssText = 'width: 800px; min-height: 1123px; background: #fff; border: 1px solid #cfd3d8; padding: 16px; box-sizing: border-box;';
+
+    const clonedSelects = clonedSheet.querySelectorAll('select');
+    const originalSelects = originalSheet.querySelectorAll('select');
+    clonedSelects.forEach((select, idx) => {
+      const origSelect = originalSelects[idx] as HTMLSelectElement;
+      const selectedText = origSelect.options[origSelect.selectedIndex]?.text || '';
+      const span = document.createElement('span');
+      span.textContent = selectedText;
+      span.style.cssText = 'font-size: 13px;';
+      select.parentNode?.replaceChild(span, select);
+    });
+
+    clonedSheet.querySelectorAll('button').forEach(btn => {
+      if (btn.textContent === '✕' || btn.style.color === 'rgb(229, 57, 53)') btn.style.display = 'none';
+    });
+    clonedSheet.querySelectorAll('.a4Items input').forEach(input => { (input as HTMLElement).style.display = 'none'; });
+    const addBtnWrap = clonedSheet.querySelector('.add-item-btn-wrap');
+    if (addBtnWrap) (addBtnWrap as HTMLElement).style.display = 'none';
+    clonedSheet.querySelectorAll('input, textarea').forEach((el) => {
+      const input = el as HTMLInputElement;
+      input.removeAttribute('placeholder');
+      if (!input.value) { input.style.color = 'transparent'; input.style.caretColor = 'transparent'; }
+    });
+    clonedSheet.querySelectorAll('span').forEach((el) => {
+      const span = el as HTMLSpanElement;
+      const text = span.textContent || '';
+      if (text.includes('품목 검색') || text.includes('품목 선택') || text.includes('검색...')) span.style.display = 'none';
+    });
+    clonedSheet.querySelectorAll('.a4Info input').forEach((el) => {
+      const input = el as HTMLInputElement;
+      if (!input.value) input.style.display = 'none';
+    });
+
+    captureContainer.appendChild(clonedSheet);
+    await new Promise(r => setTimeout(r, 300));
+
+    const canvas = await html2canvas(clonedSheet, {
+      scale: 2, backgroundColor: "#ffffff", useCORS: true, allowTaint: true, width: 800, windowWidth: 800,
+    });
+
+    document.body.removeChild(captureContainer);
+    return canvas;
+  };
+
+  const saveFile = async (format: 'jpg' | 'pdf') => {
+    setStatusMsg(format === 'jpg' ? 'JPG 생성 중...' : 'PDF 생성 중...');
     try {
-      const captureContainer = document.createElement('div');
-      captureContainer.id = 'captureContainer';
-      captureContainer.style.cssText = 'position: fixed; top: -9999px; left: -9999px; width: 800px; background: #fff; z-index: -1;';
-      document.body.appendChild(captureContainer);
+      const canvas = await captureQuoteCanvas();
+      const fileName = getQuoteFileName();
+      const imgData = canvas.toDataURL("image/jpeg", 0.92);
 
-      const styleTag = document.querySelector('#quotePreviewApp style');
-      if (styleTag) {
-        captureContainer.appendChild(styleTag.cloneNode(true));
+      if (format === 'jpg') {
+        const a = document.createElement("a");
+        a.href = imgData;
+        a.download = `${fileName}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } else {
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = pageWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        while (heightLeft > 0) {
+          position -= pageHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+        pdf.save(`${fileName}.pdf`);
       }
-
-      const clonedSheet = originalSheet.cloneNode(true) as HTMLElement;
-      clonedSheet.style.cssText = 'width: 800px; min-height: 1123px; background: #fff; border: 1px solid #cfd3d8; padding: 16px; box-sizing: border-box;';
-// select → span 변환
-                        const clonedSelects = clonedSheet.querySelectorAll('select');
-                        const originalSelectsSms = originalSheet.querySelectorAll('select');
-                        clonedSelects.forEach((select, idx) => {
-                          const origSelect = originalSelectsSms[idx] as HTMLSelectElement;
-                          const selectedText = origSelect.options[origSelect.selectedIndex]?.text || '';
-                          const span = document.createElement('span');
-                          span.textContent = selectedText;
-                          span.style.cssText = 'font-size: 13px;';
-                          select.parentNode?.replaceChild(span, select);
-                        });
-
-                        // ✕ 버튼 숨김
-                        clonedSheet.querySelectorAll('button').forEach(btn => {
-                          if (btn.textContent === '✕' || btn.style.color === 'rgb(229, 57, 53)') {
-                            btn.style.display = 'none';
-                          }
-                        });
-
-                        // 품목 테이블 내 input 숨김
-                        clonedSheet.querySelectorAll('.a4Items input').forEach(input => {
-                          (input as HTMLElement).style.display = 'none';
-                        });
-
-                        // + 품목추가 버튼 숨김
-                        const addBtnWrapSms = clonedSheet.querySelector('.add-item-btn-wrap');
-                        if (addBtnWrapSms) (addBtnWrapSms as HTMLElement).style.display = 'none';
-
-                        // placeholder 텍스트 제거
-                        clonedSheet.querySelectorAll('input, textarea').forEach((el) => {
-                          const input = el as HTMLInputElement;
-                          input.removeAttribute('placeholder');
-                          if (!input.value) {
-                            input.style.color = 'transparent';
-                            input.style.caretColor = 'transparent';
-                          }
-                        });
-                        clonedSheet.querySelectorAll('span').forEach((el) => {
-                          const span = el as HTMLSpanElement;
-                          const text = span.textContent || '';
-                          if (text.includes('품목 검색') || text.includes('품목 선택') || text.includes('검색...')) {
-                            span.style.display = 'none';
-                          }
-                        });
-                        clonedSheet.querySelectorAll('.a4Info input').forEach((el) => {
-                          const input = el as HTMLInputElement;
-                          if (!input.value) input.style.display = 'none';
-                        });
-
-                        captureContainer.appendChild(clonedSheet);
-
-      await new Promise(r => setTimeout(r, 300));
-
-      const canvas = await html2canvas(clonedSheet, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        useCORS: true,
-        allowTaint: true,
-        width: 800,
-        windowWidth: 800,
-      });
-
-      document.body.removeChild(captureContainer);
-
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
-
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = `QUOTE_${currentQuoteId || Date.now()}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
 
       setStatusMsg("다운로드 완료");
       setTimeout(() => setStatusMsg(""), 2000);
     } catch (e: any) {
-      setStatusMsg("JPG 생성 실패");
+      setStatusMsg(format === 'jpg' ? 'JPG 생성 실패' : 'PDF 생성 실패');
       const container = document.getElementById('captureContainer');
       if (container) document.body.removeChild(container);
-      alert("JPG 생성 실패: " + (e?.message || String(e)));
+      alert((format === 'jpg' ? 'JPG' : 'PDF') + ' 생성 실패: ' + (e?.message || String(e)));
     }
   };
 
