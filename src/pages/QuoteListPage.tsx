@@ -2087,11 +2087,33 @@ async function handleMultiSend() {
                       }} style={editInputStyle} />
                     ) : name}
                   </td>
-                  <td style={{ ...tdStyle, textAlign: 'center' as const }}>
-                    {editMode && showSpec ? (
-                      <input value={editForm?.spec || spec} onChange={(e) => setEditForm((p: any) => ({ ...p, spec: e.target.value }))}
-                        style={{ ...editInputStyle, textAlign: 'center' as const, width: 50 }} />
-                    ) : (showSpec ? spec : "")}
+                 <td style={{ ...tdStyle, textAlign: 'center' as const }}>
+                    {(() => {
+                      const itemSpec = item.lineSpec?.w > 0 && item.lineSpec?.l > 0
+                        ? `${item.lineSpec.w}x${item.lineSpec.l}`
+                        : (item.specText || (showSpec ? spec : ""));
+                      if (editMode && showSpec) {
+                        return (
+                          <input
+                            value={itemSpec}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const m = val.match(/(\d+)\s*[x×*]\s*(\d+)/i);
+                              const itemKey = item.key;
+                              setEditItems(prev => prev.map(it => {
+                                if (it.key !== itemKey) return it;
+                                if (m) {
+                                  return { ...it, lineSpec: { w: Number(m[1]), l: Number(m[2]), h: it.lineSpec?.h || 2.6 }, specText: '' };
+                                }
+                                return { ...it, specText: val };
+                              }));
+                            }}
+                            style={{ ...editInputStyle, textAlign: 'center' as const, width: 50 }}
+                          />
+                        );
+                      }
+                      return showSpec ? itemSpec : "";
+                    })()}
                   </td>
                   <td style={{ ...tdStyle, textAlign: 'center' as const }}>
                     {editMode && isContainerRental ? (
