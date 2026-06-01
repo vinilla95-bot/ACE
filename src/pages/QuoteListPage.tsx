@@ -1112,10 +1112,17 @@ if (dateFilter) {
   const endOfDay = `${dateFilter}T23:59:59`;
   query = query.gte("created_at", startOfDay).lte("created_at", endOfDay);
 }
-
-      const { data, error } = await query;
+const { data, error } = await query;
       if (error) throw error;
-      setList(((data ?? []) as unknown) as QuoteRow[]);
+      const sorted = ((data ?? []) as any[]).slice().sort((a, b) => {
+        const dateA = (a.created_at || "").slice(0, 10);
+        const dateB = (b.created_at || "").slice(0, 10);
+        if (dateA !== dateB) return dateA < dateB ? 1 : -1;   // 생성일자 최신순
+        const ua = a.updated_at || a.created_at || "";
+        const ub = b.updated_at || b.created_at || "";
+        return ua < ub ? 1 : -1;                              // 같은 날짜 내 수정 최신순
+      });
+      setList(sorted as unknown as QuoteRow[]);
     } catch (e: any) {
       console.error(e);
       toast("목록 로드 실패: " + (e?.message || String(e)));
