@@ -2837,7 +2837,7 @@ function A4Quote({ form, setForm, computedItems, blankRows, fmt, supply_amount, 
                 <td className="v">경기도 화성시<br />향남읍 구문천안길16</td>
               </tr>
               <tr>
-                <th className="k center">담당자</th>
+                <th className="k center">견적 담당자</th>
                 <td className="v" colSpan={3}>
                   {editable && bizcards && setSelectedBizcardId ? (
                     <select
