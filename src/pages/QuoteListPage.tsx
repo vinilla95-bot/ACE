@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { gasRpc as gasRpcRaw } from "../lib/gasRpc";
 import { matchKorean, calculateOptionLine, searchSiteRates } from "../QuoteService";
 import { A4Quote } from "../App";
+import { jsPDF } from "jspdf";
 
 export class QuoteErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -435,6 +436,7 @@ const [multiSendStatus, setMultiSendStatus] = useState("");
   const [bizcards, setBizcards] = useState<any[]>([]);
   const [selectedBizcardId, setSelectedBizcardId] = useState("");
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [saveMenuOpen, setSaveMenuOpen] = useState(false);
 
   const [statementDate, setStatementDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [paidAmount, setPaidAmount] = useState(0);
@@ -1271,90 +1273,117 @@ if (result.ok === false) throw new Error(result.message || "전송 실패");
     }
   }
 
-  async function downloadJpg() {
-    requireCurrent();
+ function getFileName() {
+    const site = String(editForm?.site_name ?? current?.site_name ?? "").trim();
+    return `${site ? site + " " : ""}귀하 ${getDocTitle()}`;
+  }
+
+  async function captureSheetCanvas(): Promise<HTMLCanvasElement> {
     const sheetEl = document.querySelector(".a4Sheet") as HTMLElement;
-    if (!sheetEl) { toast("캡처 대상을 찾을 수 없습니다."); return; }
+    if (!sheetEl) throw new Error("캡처 대상을 찾을 수 없습니다.");
 
-    toast("JPG 생성 중...");
+    const isStatement = activeTab === 'statement';
+    const captureWidth = isStatement ? 1100 : 794;
+    const captureHeight = isStatement ? 600 : 1123;
+
+    const captureContainer = document.createElement('div');
+    captureContainer.id = 'captureContainer';
+    captureContainer.style.cssText = `position: fixed; top: -9999px; left: -9999px; width: ${captureWidth}px; background: #fff; z-index: -1;`;
+    document.body.appendChild(captureContainer);
+
+    const styleTag = document.querySelector('#docPreview style');
+    if (styleTag) captureContainer.appendChild(styleTag.cloneNode(true));
+
+    const clonedSheet = sheetEl.cloneNode(true) as HTMLElement;
+    clonedSheet.style.cssText = `width: ${captureWidth}px; min-height: ${captureHeight}px; background: #fff; padding: 16px; box-sizing: border-box;`;
+
+    const clonedSelects = clonedSheet.querySelectorAll('select');
+    const originalSelects = sheetEl.querySelectorAll('select');
+    clonedSelects.forEach((select, idx) => {
+      const origSelect = originalSelects[idx] as HTMLSelectElement;
+      const selectedText = origSelect.options[origSelect.selectedIndex]?.text || '';
+      const span = document.createElement('span');
+      span.textContent = selectedText;
+      span.style.cssText = 'font-size: 13px;';
+      select.parentNode?.replaceChild(span, select);
+    });
+
+    clonedSheet.querySelectorAll('button').forEach(btn => {
+      const txt = btn.textContent || '';
+      const color = (btn as HTMLElement).style.color;
+      if (txt === '✕' || txt === '삭제' || txt === '+ 품목 추가' || txt === '+ 조항 추가' || color === 'rgb(229, 57, 53)') {
+        (btn as HTMLElement).style.display = 'none';
+      }
+    });
+    clonedSheet.querySelectorAll('.a4Items input').forEach(input => { (input as HTMLElement).style.display = 'none'; });
+    const addBtnWrap = clonedSheet.querySelector('.add-item-btn-wrap');
+    if (addBtnWrap) (addBtnWrap as HTMLElement).style.display = 'none';
+    clonedSheet.querySelectorAll('input, textarea').forEach((el) => {
+      const input = el as HTMLInputElement;
+      input.removeAttribute('placeholder');
+      if (!input.value) { input.style.color = 'transparent'; input.style.caretColor = 'transparent'; }
+    });
+    clonedSheet.querySelectorAll('span').forEach((el) => {
+      const span = el as HTMLSpanElement;
+      const text = span.textContent || '';
+      if (text.includes('품목 검색') || text.includes('품목 선택') || text.includes('검색...')) span.style.display = 'none';
+    });
+    clonedSheet.querySelectorAll('.a4Info input').forEach((el) => {
+      const input = el as HTMLInputElement;
+      if (!input.value) input.style.display = 'none';
+    });
+
+    captureContainer.appendChild(clonedSheet);
+    await new Promise(r => setTimeout(r, 300));
+
+    const canvas = await html2canvas(clonedSheet, {
+      scale: 2, backgroundColor: "#ffffff", useCORS: true, allowTaint: true,
+      width: captureWidth, windowWidth: captureWidth,
+    });
+    document.body.removeChild(captureContainer);
+    return canvas;
+  }
+
+  async function saveFile(format: 'jpg' | 'pdf') {
+    requireCurrent();
+    toast(format === 'jpg' ? 'JPG 생성 중...' : 'PDF 생성 중...');
     try {
-      const isStatement = activeTab === 'statement';
-      const captureWidth = isStatement ? 1100 : 794;
-      const captureHeight = isStatement ? 600 : 1123;
+      const canvas = await captureSheetCanvas();
+      const fileName = getFileName();
+      const imgData = canvas.toDataURL("image/jpeg", 0.92);
 
-      const captureContainer = document.createElement('div');
-      captureContainer.style.cssText = `position: fixed; top: -9999px; left: -9999px; width: ${captureWidth}px; background: #fff; z-index: -1;`;
-      document.body.appendChild(captureContainer);
-
-      const styleTag = document.querySelector('#docPreview style');
-      if (styleTag) captureContainer.appendChild(styleTag.cloneNode(true));
-
-      const clonedSheet = sheetEl.cloneNode(true) as HTMLElement;
-      clonedSheet.style.cssText = `width: ${captureWidth}px; min-height: ${captureHeight}px; background: #fff; padding: 16px; box-sizing: border-box;`;
-
-      const clonedSelects = clonedSheet.querySelectorAll('select');
-      const originalSelects = sheetEl.querySelectorAll('select');
-      clonedSelects.forEach((select, idx) => {
-        const origSelect = originalSelects[idx] as HTMLSelectElement;
-        const selectedText = origSelect.options[origSelect.selectedIndex]?.text || '';
-        const span = document.createElement('span');
-        span.textContent = selectedText;
-        span.style.cssText = 'font-size: 13px;';
-        select.parentNode?.replaceChild(span, select);
-      });
-
-      // ✅ 편집 UI 숨김 (메일 전송용 클린업)
-      clonedSheet.querySelectorAll('button').forEach(btn => {
-        const txt = btn.textContent || '';
-        const color = (btn as HTMLElement).style.color;
-        if (txt === '✕' || txt === '삭제' || txt === '+ 품목 추가' || txt === '+ 조항 추가' || color === 'rgb(229, 57, 53)') {
-          (btn as HTMLElement).style.display = 'none';
+      if (format === 'jpg') {
+        const a = document.createElement("a");
+        a.href = imgData;
+        a.download = `${fileName}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } else {
+        const isStatement = activeTab === 'statement';
+        const pdf = new jsPDF({ orientation: isStatement ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = pageWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        while (heightLeft > 0) {
+          position -= pageHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
         }
-      });
-      clonedSheet.querySelectorAll('.a4Items input').forEach(input => {
-        (input as HTMLElement).style.display = 'none';
-      });
-      const addBtnWrap = clonedSheet.querySelector('.add-item-btn-wrap');
-      if (addBtnWrap) (addBtnWrap as HTMLElement).style.display = 'none';
-      clonedSheet.querySelectorAll('input, textarea').forEach((el) => {
-        const input = el as HTMLInputElement;
-        input.removeAttribute('placeholder');
-        if (!input.value) {
-          input.style.color = 'transparent';
-          input.style.caretColor = 'transparent';
-        }
-      });
-      clonedSheet.querySelectorAll('span').forEach((el) => {
-        const span = el as HTMLSpanElement;
-        const text = span.textContent || '';
-        if (text.includes('품목 검색') || text.includes('품목 선택') || text.includes('검색...')) {
-          span.style.display = 'none';
-        }
-      });
-      clonedSheet.querySelectorAll('.a4Info input').forEach((el) => {
-        const input = el as HTMLInputElement;
-        if (!input.value) input.style.display = 'none';
-      });
+        pdf.save(`${fileName}.pdf`);
+      }
 
-      captureContainer.appendChild(clonedSheet);
-      await new Promise(r => setTimeout(r, 300));
-
-      const canvas = await html2canvas(clonedSheet, {
-        scale: 2, backgroundColor: "#ffffff", useCORS: true, allowTaint: true,
-        width: captureWidth, windowWidth: captureWidth,
-      });
-      document.body.removeChild(captureContainer);
-
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = `${getDocTitle()}_${current!.quote_id}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
       toast("다운로드 완료");
     } catch (e: any) {
-      toast("JPG 생성 실패: " + (e?.message || String(e)));
+      const container = document.getElementById('captureContainer');
+      if (container) document.body.removeChild(container);
+      toast((format === 'jpg' ? 'JPG' : 'PDF') + ' 생성 실패: ' + (e?.message || String(e)));
     }
   }
 
@@ -2414,7 +2443,7 @@ async function handleMultiSend() {
           <div className="actions">
             <button onClick={() => (window.location.href = "/?view=rt")}>실시간견적</button>
             <button className="primary" onClick={openSendModal}>{getDocTitle()} 보내기</button>
-            <button onClick={downloadJpg}>JPG저장</button>
+           <button onClick={() => setSaveMenuOpen(true)}>파일저장</button>
             <button onClick={handlePrint}>인쇄</button>
             <button onClick={handleCopyQuote}>복사</button>
             <button onClick={() => {
@@ -2663,6 +2692,22 @@ async function handleMultiSend() {
             </div>
           )}
 
+{saveMenuOpen && (
+            <div
+              onClick={() => setSaveMenuOpen(false)}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 11000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 12, padding: 20, width: 260, boxShadow: '0 8px 30px rgba(0,0,0,0.2)' }}>
+                <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 14, textAlign: 'center' }}>파일 형식 선택</div>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button onClick={() => { setSaveMenuOpen(false); saveFile('jpg'); }} style={{ flex: 1, padding: '12px', background: '#e3f2fd', color: '#1565c0', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>JPG</button>
+                  <button onClick={() => { setSaveMenuOpen(false); saveFile('pdf'); }} style={{ flex: 1, padding: '12px', background: '#ffebee', color: '#c62828', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>PDF</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          
           <div className="toast" ref={toastRef} />
         </div>
       </div>
