@@ -1824,9 +1824,9 @@ const clonedSheet = originalSheet.cloneNode(true) as HTMLElement;
   };
 
  const getQuoteFileName = () => {
-    const site = String(form.sitePickedLabel || form.siteQ || "").trim();
-    return `${site ? site + " " : ""}귀하 견적서`;
-  };
+  const name = String(form.name || "").trim();
+  return `${name ? name + " " : ""}귀하 견적서`;
+};
 
   const captureQuoteCanvas = async (): Promise<HTMLCanvasElement> => {
     const originalSheet = document.querySelector("#quotePreviewApp .a4Sheet") as HTMLElement;
