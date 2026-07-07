@@ -1280,9 +1280,9 @@ if (result.ok === false) throw new Error(result.message || "전송 실패");
     }
   }
 
- function getFileName() {
-    const site = String(editForm?.site_name ?? current?.site_name ?? "").trim();
-    return `${site ? site + " " : ""}귀하 ${getDocTitle()}`;
+function getFileName() {
+    const name = String(editForm?.customer_name ?? current?.customer_name ?? "").trim();
+    return `${name ? name + " " : ""}귀하 ${getDocTitle()}`;
   }
 
   async function captureSheetCanvas(): Promise<HTMLCanvasElement> {
