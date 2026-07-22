@@ -2733,7 +2733,7 @@ function A4Quote({ form, setForm, computedItems, blankRows, fmt, supply_amount, 
         <div className="a4Sheet">
           <div className="a4Header">
             <div className="a4HeaderLeft">
-              <img src="https://i.postimg.cc/VvsGvxFP/logo1.jpg" alt="logo" className="a4Logo" />
+              <img src="https://tssndwlbeogehtfinqek.supabase.co/storage/v1/object/public/attachments/KakaoTalk_20260612_092748568.png" alt="logo" className="a4Logo" />
             </div>
             <div className="a4HeaderCenter">견 적 서</div>
             <div className="a4HeaderRight" />
