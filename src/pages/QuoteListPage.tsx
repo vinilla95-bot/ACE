@@ -512,7 +512,7 @@ const [multiSendStatus, setMultiSendStatus] = useState("");
   importantNotes: newForm.importantNotes,
     }));
     if (newForm.vatIncluded !== quoteForm.vatIncluded && current) {
-      supabase.from("quotes").update({ vat_included: newForm.vatIncluded }).eq("quote_id", current.quote_id);
+      supabase.from("quotes_ace").update({ vat_included: newForm.vatIncluded }).eq("quote_id", current.quote_id);
       setCurrent({ ...current, vat_included: newForm.vatIncluded });
     }
   }, [quoteForm, current]);
@@ -912,7 +912,7 @@ const rentalMeta = {
       }
 
       const { error, data } = await supabase
-        .from("quotes")
+        .from("quotes_ace")
         .update({
           items: itemsToSave,
           supply_amount: supply,
@@ -975,7 +975,7 @@ const rentalMeta = {
       const hms = now.toTimeString().slice(0, 8).replace(/:/g, "");
       const newQuoteId = `Q${ymd}-${hms}`;
 
-      const { error } = await supabase.from("quotes").insert({
+      const { error } = await supabase.from("quotes_ace").insert({
         quote_id: newQuoteId,
         quote_title: current!.quote_title,
         customer_name: current!.customer_name,
@@ -1039,7 +1039,7 @@ const rentalMeta = {
       }));
 
       const { error, data } = await supabase
-        .from("quotes")
+        .from("quotes_ace")
         .update({
           status: "confirmed",
           contract_type: contractType,
@@ -1079,7 +1079,7 @@ const rentalMeta = {
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
       let query = supabase
-        .from("quotes")
+        .from("quotes_ace")
         .select(selectCols)
         .or("source.is.null,source.eq.통화녹음")
         .not("quote_id", "like", "SCHEDULE_%")
@@ -1493,7 +1493,7 @@ function getFileName() {
 
     try {
       toast("삭제 중...");
-      const { error } = await supabase.from("quotes").delete().eq("quote_id", current!.quote_id);
+      const { error } = await supabase.from("quotes_ace").delete().eq("quote_id", current!.quote_id);
       if (error) throw error;
       toast("삭제 완료!");
       setCurrent(null);
