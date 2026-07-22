@@ -2579,7 +2579,7 @@ onUpdatePrice={(key, price) => updateRow(key, "customerUnitPrice", price)}
 
                         const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
 
-                        const msg = `안녕하세요 현대컨테이너입니다. 문의 주셔서 감사합니다. ${form.name || '고객'}님 견적서를 보내드립니다. 확인하시고 문의사항 있으시면 언제든 연락 주세요. 감사합니다~`;
+                        const msg = `안녕하세요 에이스컨테이너입니다. 문의 주셔서 감사합니다. ${form.name || '고객'}님 견적서를 보내드립니다. 확인하시고 문의사항 있으시면 언제든 연락 주세요. 감사합니다~`;
                         const phone = form.phone.replace(/[^0-9]/g, '');
 
                         const a = document.createElement('a');
@@ -2779,7 +2779,7 @@ function A4Quote({ form, setForm, computedItems, blankRows, fmt, supply_amount, 
                   </div>
                 </td>
                 <th className="k center">공급자</th>
-                <td className="v">현대컨테이너</td>
+                <td className="v">에이스컨테이너</td>
               </tr>
               <tr>
                 <th className="k center">이메일</th>
@@ -2819,7 +2819,7 @@ function A4Quote({ form, setForm, computedItems, blankRows, fmt, supply_amount, 
                   ) : (form.phone || "")}
                 </td>
                 <th className="k center">등록번호</th>
-                <td className="v">130-41-38154</td>
+                <td className="v">310-11-65997</td>
               </tr>
               <tr>
                 <th className="k center">현장</th>
@@ -2834,7 +2834,7 @@ function A4Quote({ form, setForm, computedItems, blankRows, fmt, supply_amount, 
                   ) : siteText}
                 </td>
                 <th className="k center">주소</th>
-                <td className="v">경기도 화성시<br />향남읍 구문천안길16</td>
+                <td className="v">경기도 평택시<br />청북읍 안청로 2길 45</td>
               </tr>
               <tr>
                 <th className="k center">견적 담당자</th>
@@ -2850,7 +2850,7 @@ function A4Quote({ form, setForm, computedItems, blankRows, fmt, supply_amount, 
                   ) : (bizcardName || "")}
                 </td>
                 <th className="k center">대표전화</th>
-                <td className="v">1688-1447</td>
+                <td className="v">010-8773-7557</td>
               </tr>
               <tr>
                 <td className="msg" colSpan={6}>
