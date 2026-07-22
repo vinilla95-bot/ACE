@@ -2052,7 +2052,7 @@ async function handleMultiSend() {
     return (
       <div className="a4Sheet" style={{ background: '#fff', padding: '30px 40px', width: 794 }}>
         <div style={{ position: 'relative', textAlign: 'center', marginBottom: 20 }}>
-          <img src="https://tssndwlbeogehtfinqek.supabase.co/storage/v1/object/public/attachments/KakaoTalk_20260612_092748568.png" alt="logo" style={{ position: 'absolute', left: 0, top: 0, width: 110, height: 'auto' }} />
+          <img src="https://tssndwlbeogehtfinqek.supabase.co/storage/v1/object/public/attachments/logo.png" alt="logo" style={{ position: 'absolute', left: 0, top: 0, width: 110, height: 'auto' }} />
           <div style={{ fontSize: 30, fontWeight: 900, color: '#000', letterSpacing: 14, paddingTop: 5 }}>임 대 차 계 약 서</div>
         </div>
 
