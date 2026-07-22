@@ -1272,7 +1272,7 @@ const getInheritedSpec = (items: any[], currentIndex: number): { w: number; l: n
       .then(({ data }) => {
         const list = (data || []) as any[];
         setBizcards(list);
-        const goeunhee = list.find((x: any) => String(x.name || "").includes("고은희"));
+        const goeunhee = list.find((x: any) => String(x.name || "").includes("이현주"));
         if (goeunhee?.id) setSelectedBizcardId(goeunhee.id);
         else if (list[0]?.id) setSelectedBizcardId(list[0].id);
       });
