@@ -347,7 +347,10 @@ const sanitizeItems = (items: any[]): any[] => {
     baseUnitPrice: Number(item.baseUnitPrice || 0),
     baseAmount: Number(item.baseAmount || 0),
     lineSpec: item.lineSpec || null,
-    showSpec: item.showSpec || 'n',
+   showSpec: item.showSpec || 'n',
+    specText: String(item.specText || ''),
+    months: Number(item.months || 3),
+    vatOverride: typeof item.vatOverride === 'number' ? item.vatOverride : undefined,
   }));
 };
 
@@ -356,12 +359,12 @@ export const saveQuoteToDb = async (payload: any) => {
     ...payload,
     items: sanitizeItems(payload.items || [])
   };
-  return await supabase.from('quotes').insert([dataToSave]).select();
+return await supabase.from('quotes_ace').insert([dataToSave]).select();
 };
 
 export const insertNextVersionToDb = async (quote_id: string, payload: any) => {
   const { data: rows } = await supabase
-    .from('quotes')
+    .from('quotes_ace')
     .select('version')
     .eq('quote_id', quote_id)
     .order('version', { ascending: false })
@@ -378,5 +381,5 @@ export const insertNextVersionToDb = async (quote_id: string, payload: any) => {
     items: sanitizeItems(payload.items || [])
   };
   
-  return await supabase.from('quotes').insert([row]).select();
+  return await supabase.from('quotes_ace').insert([row]).select();
 };
