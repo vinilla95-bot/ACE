@@ -1828,21 +1828,17 @@ const clonedSheet = originalSheet.cloneNode(true) as HTMLElement;
   return `${name ? name + " " : ""}귀하 견적서`;
 };
 
-  const captureQuoteCanvas = async (): Promise<HTMLCanvasElement> => {
+ const captureQuoteCanvas = async (): Promise<HTMLCanvasElement> => {
     const originalSheet = document.querySelector("#quotePreviewApp .a4Sheet") as HTMLElement;
     if (!originalSheet) throw new Error("캡처 대상을 찾을 수 없습니다.");
-
     const captureContainer = document.createElement('div');
     captureContainer.id = 'captureContainer';
     captureContainer.style.cssText = 'position: fixed; top: -9999px; left: -9999px; width: 800px; background: #fff; z-index: -1;';
     document.body.appendChild(captureContainer);
-
     const styleTag = document.querySelector('#quotePreviewApp style');
     if (styleTag) captureContainer.appendChild(styleTag.cloneNode(true));
-
     const clonedSheet = originalSheet.cloneNode(true) as HTMLElement;
     clonedSheet.style.cssText = 'width: 800px; min-height: 1123px; background: #fff; border: 1px solid #cfd3d8; padding: 16px; box-sizing: border-box;';
-
     const clonedSelects = clonedSheet.querySelectorAll('select');
     const originalSelects = originalSheet.querySelectorAll('select');
     clonedSelects.forEach((select, idx) => {
@@ -1852,6 +1848,17 @@ const clonedSheet = originalSheet.cloneNode(true) as HTMLElement;
       span.textContent = selectedText;
       span.style.cssText = 'font-size: 13px;';
       select.parentNode?.replaceChild(span, select);
+    });
+
+    // ✅ textarea → div 변환 (결제조건/주의사항/중요사항)
+    const clonedTextareas = clonedSheet.querySelectorAll('textarea');
+    const originalTextareas = originalSheet.querySelectorAll('textarea');
+    clonedTextareas.forEach((ta, idx) => {
+      const origTa = originalTextareas[idx] as HTMLTextAreaElement;
+      const div = document.createElement('div');
+      div.textContent = origTa?.value || '';
+      div.style.cssText = 'white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.55; width: 100%;';
+      ta.parentNode?.replaceChild(div, ta);
     });
 
     clonedSheet.querySelectorAll('button').forEach(btn => {
@@ -1874,14 +1881,11 @@ const clonedSheet = originalSheet.cloneNode(true) as HTMLElement;
       const input = el as HTMLInputElement;
       if (!input.value) input.style.display = 'none';
     });
-
     captureContainer.appendChild(clonedSheet);
     await new Promise(r => setTimeout(r, 300));
-
     const canvas = await html2canvas(clonedSheet, {
       scale: 2, backgroundColor: "#ffffff", useCORS: true, allowTaint: true, width: 800, windowWidth: 800,
     });
-
     document.body.removeChild(captureContainer);
     return canvas;
   };
