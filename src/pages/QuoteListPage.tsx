@@ -1087,7 +1087,7 @@ const rentalMeta = {
 
       .order("created_at", { ascending: false, nullsFirst: false })
        .order("updated_at", { ascending: false, nullsFirst: false })
-        .limit(200);
+        .limit(1000);
 
   const kw = (keyword || "").trim();
 
