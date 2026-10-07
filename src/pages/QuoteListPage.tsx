@@ -1091,11 +1091,7 @@ const rentalMeta = {
 
   const kw = (keyword || "").trim();
 
-if (!kw && !dateFilter) {
-  const oneMonthAgo = new Date();
-  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-  query = query.gte("created_at", oneMonthAgo.toISOString());
-}
+
 
 if (kw) {
   const like = `%${kw}%`;
