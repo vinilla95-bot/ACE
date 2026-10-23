@@ -1857,7 +1857,7 @@ async function handleMultiSend() {
               <td style={tdStyle}>
                 <span style={{ position: 'relative', display: 'inline-block' }}>
                   에이스 컨테이너
-                  <img src="" alt="도장"
+                  <img src="https://tssndwlbeogehtfinqek.supabase.co/storage/v1/object/public/attachments/stamp_ace.png" alt="도장"
                     style={{ position: 'absolute', top: -10, left: 55, width: 32, height: 32, opacity: 0.9 }} />
                 </span>
               </td>
@@ -1865,7 +1865,7 @@ async function handleMultiSend() {
             </tr>
             <tr>
               <th style={thStyle}>업태</th><td style={tdStyle}>컨테이너 판매 임대</td>
-              <th style={thStyle}>종목</th><td style={tdStyle}>제조업,도소매</td>
+              <th style={thStyle}>종목</th><td style={tdStyle}>판매,임대</td>
             </tr>
             <tr>
               <th style={thStyle}>전화번호</th><td style={tdStyle}>010-8773-7557</td>
