@@ -1849,27 +1849,27 @@ async function handleMultiSend() {
         <table style={{ borderCollapse: 'collapse', width: '55%' }}>
           <tbody>
             <tr>
-              <th style={thStyle}>등록번호</th><td style={tdStyle}>130-41-38154</td>
-              <th style={thStyle}>성명</th><td style={tdStyle}>류창석</td>
+              <th style={thStyle}>등록번호</th><td style={tdStyle}>310-11-65997</td>
+              <th style={thStyle}>성명</th><td style={tdStyle}>류희수</td>
             </tr>
             <tr>
               <th style={thStyle}>상호</th>
               <td style={tdStyle}>
                 <span style={{ position: 'relative', display: 'inline-block' }}>
-                  현대컨테이너
-                  <img src="https://tssndwlbeogehtfinqek.supabase.co/storage/v1/object/public/attachments/stamp.png" alt="도장"
+                  에이스 컨테이너
+                  <img src="https://i.postimg.cc/ZqCgyZTm/Kakao-Talk-20261023-104422119.png" alt="도장"
                     style={{ position: 'absolute', top: -10, left: 55, width: 32, height: 32, opacity: 0.9 }} />
                 </span>
               </td>
-              <th style={thStyle}>주소</th><td style={tdStyle}>화성시구문천안길16</td>
+              <th style={thStyle}>주소</th><td style={tdStyle}>평택시 안청로 2길 45</td>
             </tr>
             <tr>
               <th style={thStyle}>업태</th><td style={tdStyle}>컨테이너 판매 임대</td>
               <th style={thStyle}>종목</th><td style={tdStyle}>제조업,도소매</td>
             </tr>
             <tr>
-              <th style={thStyle}>전화번호</th><td style={tdStyle}>010-4138-9268</td>
-              <th style={thStyle}>팩스번호</th><td style={tdStyle}>031-359-8246</td>
+              <th style={thStyle}>전화번호</th><td style={tdStyle}>010-8773-7557</td>
+              <th style={thStyle}>팩스번호</th><td style={tdStyle}>0504-462-9333</td>
             </tr>
           </tbody>
         </table>
@@ -1893,7 +1893,7 @@ async function handleMultiSend() {
           <span style={{ fontWeight: 700, color: '#dc2626', marginRight: 6 }}>미수금:</span>
           <span style={{ fontSize: 16, fontWeight: 900, color: '#dc2626' }}>{money(unpaidAmount)}</span>
         </div>
-        <span style={{ fontSize: 11, marginLeft: 'auto' }}>기업은행 465-096127-04-015 현대컨테이너 류창석</span>
+        <span style={{ fontSize: 11, marginLeft: 'auto' }}>하나은행 726-910410-60807 류희수에이스컨테이너</span>
       </div>
 
       <table style={{ borderCollapse: 'collapse', width: '100%' }}>
