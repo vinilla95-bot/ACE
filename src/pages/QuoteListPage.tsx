@@ -1857,7 +1857,7 @@ async function handleMultiSend() {
               <td style={tdStyle}>
                 <span style={{ position: 'relative', display: 'inline-block' }}>
                   에이스 컨테이너
-                  <img src="https://i.postimg.cc/ZqCgyZTm/Kakao-Talk-20261023-104422119.png" alt="도장"
+                  <img src="" alt="도장"
                     style={{ position: 'absolute', top: -10, left: 55, width: 32, height: 32, opacity: 0.9 }} />
                 </span>
               </td>
